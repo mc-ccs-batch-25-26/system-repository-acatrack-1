@@ -1,4 +1,4 @@
-# Project Title: [Your Thesis Title Here]
+# Project Title: E-CAO (Electronic Community Affairs Office): Enhancing a Localized Scholar Management System for CNPGCEAP
 
 ## System Repository Template
 
