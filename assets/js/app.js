@@ -180,3 +180,31 @@ function initDualPicker() {
 
     updatePickerCounts();
 }
+
+/* ── Mobile Scholar Nav: show labels on tap ──────────────────── */
+(function () {
+  function isMobile() { return window.innerWidth < 768; }
+
+  // Add aria-labels and title attributes to nav links for accessibility
+  document.querySelectorAll('.scholar-nav-link').forEach(link => {
+    const text = link.textContent.trim();
+    if (text) {
+      link.setAttribute('title', text);
+      link.setAttribute('aria-label', text);
+    }
+  });
+
+  // Swipe-to-scroll support is native via overflow-x: auto
+
+  // Prevent double-tap zoom on nav links and buttons
+  let lastTap = 0;
+  document.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      if (e.target.closest('.btn, .scholar-nav-link, .nav-item')) {
+        e.preventDefault();
+      }
+    }
+    lastTap = now;
+  }, { passive: false });
+})();
