@@ -193,7 +193,7 @@ include __DIR__ . '/../includes/header.php';
                     <div class="d-flex align-items-start gap-2">
                         <?php if ($a['is_pinned']): ?><i class="bi bi-pin-fill text-accent small mt-1"></i><?php endif; ?>
                         <div>
-                            <div class="fw-600 small"><?= htmlspecialchars($a['title']) ?></div>
+                            <div style="color: white;" class="fw-600 small"><?= htmlspecialchars($a['title']) ?></div>
                             <div class="text-muted-pg" style="font-size:11px;"><?= formatDate($a['created_at']) ?></div>
                         </div>
                         <span class="ann-category <?= $a['category'] ?> ms-auto"><?= ucfirst($a['category']) ?></span>
@@ -212,7 +212,7 @@ include __DIR__ . '/../includes/header.php';
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div>
-                        <div class="fw-600">Document Review</div>
+                        <div class="fw-600" style="color: white;">Document Review</div>
                         <div class="small text-muted-pg">COG, Registration Forms</div>
                     </div>
                     <div class="d-flex align-items-center gap-2">
@@ -222,7 +222,7 @@ include __DIR__ . '/../includes/header.php';
                 </div>
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="fw-600">Activity Submissions</div>
+                        <div class="fw-600" style="color: white;">Activity Submissions</div>
                         <div class="small text-muted-pg">Activity proof reviews</div>
                     </div>
                     <div class="d-flex align-items-center gap-2">
