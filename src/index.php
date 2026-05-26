@@ -27,38 +27,37 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
-    $userType = $_POST['user_type'] ?? 'admin'; // admin or scholar
 
     if (!$email || !$password) {
         $error = 'Please enter your email and password.';
     } else {
         $db = getDB();
 
-        if ($userType === 'admin') {
-            $stmt = $db->prepare("SELECT * FROM admin_users WHERE email = ? AND is_active = 1 LIMIT 1");
-            $stmt->execute([$email]);
-            $user = $stmt->fetch();
-            if ($user && password_verify($password, $user['password_hash'])) {
-                loginAdmin($user);
-                // Update last login
-                $db->prepare("UPDATE admin_users SET last_login_at = NOW() WHERE id = ?")->execute([$user['id']]);
-                header('Location: ' . BASE_URL . '/admin/dashboard.php');
-                exit;
-            } else {
-                $error = 'Invalid credentials. Please try again.';
-            }
-        } else {
-            $stmt = $db->prepare("SELECT * FROM scholars WHERE email = ? AND account_activated = 1 LIMIT 1");
-            $stmt->execute([$email]);
-            $user = $stmt->fetch();
-            if ($user && $user['password_hash'] && password_verify($password, $user['password_hash'])) {
-                loginScholar($user);
-                header('Location: ' . BASE_URL . '/scholar/feed.php');
-                exit;
-            } else {
-                $error = 'Invalid credentials or account not yet activated.';
-            }
+        // 1. Check admin_users first
+        $stmt = $db->prepare("SELECT * FROM admin_users WHERE email = ? AND is_active = 1 LIMIT 1");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if ($user && password_verify($password, $user['password_hash'])) {
+            loginAdmin($user);
+            $db->prepare("UPDATE admin_users SET last_login_at = NOW() WHERE id = ?")->execute([$user['id']]);
+            header('Location: ' . BASE_URL . '/admin/dashboard.php');
+            exit;
         }
+
+        // 2. Check scholars table
+        $stmt = $db->prepare("SELECT * FROM scholars WHERE email = ? AND account_activated = 1 LIMIT 1");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if ($user && $user['password_hash'] && password_verify($password, $user['password_hash'])) {
+            loginScholar($user);
+            header('Location: ' . BASE_URL . '/scholar/feed.php');
+            exit;
+        }
+
+        // Neither matched
+        $error = 'Invalid credentials or account not yet activated.';
     }
 }
 
@@ -109,19 +108,7 @@ if (isset($_GET['success'])) {
         </div>
     <?php endif; ?>
 
-    <!-- Tab switcher -->
-    <div class="d-flex gap-2 mb-4 p-1 rounded" style="background:var(--bg-elevated);">
-        <button class="btn flex-fill tab-btn active" id="tabAdmin" onclick="switchTab('admin')">
-            <i class="bi bi-person-badge me-2"></i>Admin / Staff
-        </button>
-        <button class="btn flex-fill tab-btn" id="tabScholar" onclick="switchTab('scholar')">
-            <i class="bi bi-mortarboard me-2"></i>Scholar
-        </button>
-    </div>
-
     <form method="POST" action="">
-        <input type="hidden" name="user_type" id="userTypeInput" value="admin">
-
         <div class="mb-3">
             <label class="form-label">Email Address</label>
             <div class="input-group">
@@ -162,14 +149,6 @@ if (isset($_GET['success'])) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function switchTab(type) {
-    document.getElementById('userTypeInput').value = type;
-    document.getElementById('tabAdmin').classList.toggle('btn-primary', type === 'admin');
-    document.getElementById('tabAdmin').classList.toggle('btn-ghost',   type !== 'admin');
-    document.getElementById('tabScholar').classList.toggle('btn-primary', type === 'scholar');
-    document.getElementById('tabScholar').classList.toggle('btn-ghost',   type !== 'scholar');
-}
-
 function togglePw() {
     const pw = document.getElementById('passwordInput');
     const ic = document.getElementById('pwEyeIcon');
@@ -181,10 +160,6 @@ function togglePw() {
         ic.className = 'bi bi-eye';
     }
 }
-
-// Init tab style
-document.getElementById('tabAdmin').classList.add('btn-primary');
-document.getElementById('tabScholar').classList.add('btn-ghost');
 </script>
 </body>
 </html>
